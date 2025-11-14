@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "730622426296",
+    "project_id": "siden-56694",
+    "storage_bucket": "siden-56694.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730622426296:android:303a459fffe048885b884d",
+        "android_client_info": {
+          "package_name": "com.example.siden"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyJrcg9xya02aXo7wkWNQzd_xDIJXY0B8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

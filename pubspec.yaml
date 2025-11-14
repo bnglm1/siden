@@ -1,0 +1,34 @@
+name: siden
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'  # ^3.8.1 yerine daha geniş aralık
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+  provider: ^6.1.5+1
+  intl: ^0.20.2
+  image_picker: ^1.2.1
+  firebase_storage: ^13.0.4
+  cached_network_image: ^3.4.1
+  flutter_downloader: ^1.12.0
+  photo_view: ^0.15.0
+  permission_handler: ^12.0.1
+  device_info_plus: ^12.2.0
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
