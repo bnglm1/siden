@@ -42,8 +42,11 @@ class AuthService {
       final user = userCredential.user;
 
       if (user != null) {
-        // Kullanıcı profilini güncelle
-        await user.updateDisplayName(fullName);
+        // Kullanıcı profilini güncelle - DÜZELTME: updateDisplayName yerine updateProfile kullan
+        await user.updateProfile(displayName: fullName);
+
+        // Kullanıcıyı yeniden yükle ki değişiklikler hemen görünsün
+        await user.reload();
 
         // Firestore'da kullanıcı dokümanı oluştur
         await _firestore.collection('users').doc(user.uid).set({
@@ -105,5 +108,42 @@ class AuthService {
         .get();
 
     return querySnapshot.docs.isEmpty;
+  }
+
+  // Kullanıcı profilini güncelleme metodu - YENİ EKLENDİ
+  Future<void> updateUserProfile({
+    String? displayName,
+    String? photoURL,
+  }) async {
+    final user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.updateProfile(
+        displayName: displayName,
+        photoURL: photoURL,
+      );
+      await user.reload();
+    }
+  }
+
+  // Kullanıcı bilgilerini getirme metodu - YENİ EKLENDİ
+  Future<Map<String, dynamic>?> getUserData(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        return doc.data();
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Mevcut kullanıcının verilerini getir - YENİ EKLENDİ
+  Future<Map<String, dynamic>?> getCurrentUserData() async {
+    final user = _firebaseAuth.currentUser;
+    if (user != null) {
+      return await getUserData(user.uid);
+    }
+    return null;
   }
 }

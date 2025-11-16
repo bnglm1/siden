@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'auth_service.dart';
+import '../services/auth_service.dart';
 import 'chat_screen.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -1723,11 +1725,11 @@ class UserListItem extends StatelessWidget {
   final int unreadCount;
 
   const UserListItem({
-    Key? key,
+    super.key,
     required this.userData,
     required this.onTap,
     this.unreadCount = 0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

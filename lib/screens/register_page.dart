@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'auth_service.dart';
+import 'package:siden/screens/home_page.dart';
+import '../services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -61,12 +64,23 @@ class _RegisterPageState extends State<RegisterPage>
       String password = _passwordController.text.trim();
       String fullName = _fullNameController.text.trim();
 
+      // Kullanıcıyı oluştur
       await authService.createUserWithEmailAndPassword(
         email: email,
         password: password,
         username: _usernameController.text.trim(),
         fullName: fullName,
       );
+
+      // Firebase Authentication'daki kullanıcı profilini güncelle
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.updateProfile(displayName: fullName);
+        await user.reload(); // Değişiklikleri hemen yükle
+
+        // Kullanıcıyı yeniden al
+        user = FirebaseAuth.instance.currentUser;
+      }
 
       _showSuccessDialog();
     } on FirebaseAuthException catch (e) {
@@ -213,6 +227,7 @@ class _RegisterPageState extends State<RegisterPage>
   void _showSuccessDialog() {
     showDialog(
       context: context,
+      barrierDismissible: false, // Kullanıcı dışarı tıklayarak kapatamasın
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         elevation: 0,
@@ -292,6 +307,14 @@ class _RegisterPageState extends State<RegisterPage>
                       color: Colors.black87,
                     ),
                   ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Adınız: ${_fullNameController.text}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 24),
@@ -318,15 +341,18 @@ class _RegisterPageState extends State<RegisterPage>
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
+                      // Dialog'u kapat ve HomePage'e yönlendir
                       Navigator.of(context).pop();
-                      _navigateToLogin();
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
                     },
                     borderRadius: BorderRadius.circular(15),
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                       child: Text(
-                        'Giriş Yap',
+                        'Devam Et',
                         style: TextStyle(
                           color: Color(0xFF667eea),
                           fontWeight: FontWeight.w600,
@@ -345,7 +371,7 @@ class _RegisterPageState extends State<RegisterPage>
   }
 
   void _navigateToLogin() {
-    Navigator.of(context).pop();
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   // Kullanıcı adı validasyonu
@@ -829,7 +855,7 @@ class _RegisterPageState extends State<RegisterPage>
                               child: InkWell(
                                 onTap: _register,
                                 borderRadius: BorderRadius.circular(15),
-                                child: Container(
+                                child: SizedBox(
                                   width: double.infinity,
                                   height: 50,
                                   child: Center(
