@@ -1,16 +1,19 @@
-# siden
+# Siden
 
-A new Flutter project.
+A Flutter-based messaging application that provides a fast, secure, and modern communication experience. Users can send text messages, share photos, make voice and video calls, post stories, view others’ stories, and create group chats.
 
-## Getting Started
+# Features
+
+Real-time messaging with text, photo, and multimedia support
+Voice and video calls using P2P and WebRTC
+Story sharing and viewing
+Group chat creation and management
+Firebase backend for secure user data storage and real-time synchronization
+
+# Getting Started
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+# Prerequisites
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Flutter SDK installed (Flutter Installation Guide)
