@@ -17,7 +17,6 @@ class AuthService {
         password: password,
       );
 
-      // Kullanıcıyı çevrimiçi yap ve son giriş zamanını güncelle
       await _setUserOnlineStatus(userCredential.user!.uid, true);
 
       return userCredential.user;
@@ -33,7 +32,6 @@ class AuthService {
     required String fullName,
   }) async {
     try {
-      // Kullanıcıyı Firebase Auth ile oluştur
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -42,13 +40,10 @@ class AuthService {
       final user = userCredential.user;
 
       if (user != null) {
-        // Kullanıcı profilini güncelle - DÜZELTME: updateDisplayName yerine updateProfile kullan
         await user.updateProfile(displayName: fullName);
 
-        // Kullanıcıyı yeniden yükle ki değişiklikler hemen görünsün
         await user.reload();
 
-        // Firestore'da kullanıcı dokümanı oluştur
         await _firestore.collection('users').doc(user.uid).set({
           'uid': user.uid,
           'username': username,
@@ -76,7 +71,6 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    // Çıkış yaparken çevrimdışı durumuna geç
     final user = _firebaseAuth.currentUser;
     if (user != null) {
       await _setUserOnlineStatus(user.uid, false);
@@ -85,7 +79,6 @@ class AuthService {
     await _firebaseAuth.signOut();
   }
 
-  // Uygulama durumu değişiklikleri için
   Future<void> setAppUserStatus(bool isOnline) async {
     final user = _firebaseAuth.currentUser;
     if (user != null) {
@@ -99,7 +92,6 @@ class AuthService {
     await _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
-  // Kullanıcı adının kullanılabilir olup olmadığını kontrol et
   Future<bool> isUsernameAvailable(String username) async {
     final querySnapshot = await _firestore
         .collection('users')
@@ -110,7 +102,6 @@ class AuthService {
     return querySnapshot.docs.isEmpty;
   }
 
-  // Kullanıcı profilini güncelleme metodu - YENİ EKLENDİ
   Future<void> updateUserProfile({
     String? displayName,
     String? photoURL,
@@ -125,7 +116,6 @@ class AuthService {
     }
   }
 
-  // Kullanıcı bilgilerini getirme metodu - YENİ EKLENDİ
   Future<Map<String, dynamic>?> getUserData(String uid) async {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
@@ -138,7 +128,6 @@ class AuthService {
     }
   }
 
-  // Mevcut kullanıcının verilerini getir - YENİ EKLENDİ
   Future<Map<String, dynamic>?> getCurrentUserData() async {
     final user = _firebaseAuth.currentUser;
     if (user != null) {
