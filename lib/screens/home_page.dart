@@ -17,8 +17,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final User? _currentUser = FirebaseAuth.instance.currentUser;
   String _searchQuery = '';
   bool _isSearching = false;
-
-  // YENİ: Kullanıcıların okunmamış mesaj sayılarını tutacak map
   Map<String, int> _unreadCounts = {};
 
   @override
@@ -26,7 +24,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _setUserOnlineStatus(true);
-    _startListeningUnreadMessages(); // YENİ: Okunmamış mesajları dinle
+    _startListeningUnreadMessages();
   }
 
   @override
@@ -64,12 +62,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       await authService.setAppUserStatus(isOnline);
-    } catch (e) {
-      print('Çevrimiçi durumu güncellenirken hata: $e');
-    }
+    } catch (e) {}
   }
 
-  // YENİ: Okunmamış mesajları dinlemeye başla
   void _startListeningUnreadMessages() {
     if (_currentUser == null) return;
 
@@ -82,7 +77,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  // YENİ: Okunmamış mesaj sayılarını güncelle
   void _updateUnreadCounts(QuerySnapshot snapshot) {
     Map<String, int> newUnreadCounts = {};
 
@@ -92,9 +86,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       final lastMessageSender = chatData['lastMessageSender'] as String?;
       final lastMessageRead = chatData['lastMessageRead'] as bool? ?? true;
 
-      // Son mesajı current user göndermediyse ve okunmamışsa
       if (lastMessageSender != _currentUser!.uid && !lastMessageRead) {
-        // Diğer kullanıcıyı bul
         final otherUserId = participants.firstWhere(
           (id) => id != _currentUser!.uid,
           orElse: () => '',
@@ -117,7 +109,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFf0f0f0), // Neumorphism arka plan
+      backgroundColor: Color(0xFFf0f0f0),
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -125,7 +117,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Color(0xFFf0f0f0), // Neumorphism arka plan
+      backgroundColor: Color(0xFFf0f0f0),
       elevation: 0,
       title: _isSearching
           ? Container(
@@ -873,15 +865,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               final userDoc = filteredUsers[index];
               final userData = userDoc.data() as Map<String, dynamic>;
               final userId = userData['uid'] ?? '';
-
-              // YENİ: Bu kullanıcı için okunmamış mesaj sayısını al
               final unreadCount = _unreadCounts[userId] ?? 0;
 
               return UserListItem(
                 userData: userData,
                 onTap: () => _navigateToChat(userData),
-                unreadCount:
-                    unreadCount, // YENİ: Okunmamış mesaj sayısını iletiyoruz
+                unreadCount: unreadCount,
               );
             },
           );
@@ -1183,7 +1172,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _navigateToChat(Map<String, dynamic> otherUserData) {
-    // YENİ: Sohbete gidildiğinde okunmamış mesaj sayısını sıfırla
     final otherUserId = otherUserData['uid'] ?? '';
     if (otherUserId.isNotEmpty && _unreadCounts.containsKey(otherUserId)) {
       setState(() {
@@ -1704,7 +1692,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       final authService = Provider.of<AuthService>(context, listen: false);
       await authService.signOut();
     } catch (e) {
-      print('Çıkış hatası: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Çıkış yapılırken bir hata oluştu'),
@@ -1846,7 +1833,6 @@ class UserListItem extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                // YENİ: Okunmamış mesaj bildirimi aktiflik durumu altında
                 if (unreadCount > 0) ...[
                   SizedBox(height: 6),
                   Container(
