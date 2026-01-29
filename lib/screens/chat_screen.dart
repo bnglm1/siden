@@ -19,7 +19,6 @@ import 'package:siden/screens/incoming_call_screen.dart';
 import 'package:siden/services/call_manager.dart';
 import 'call_screen.dart';
 
-// Neumorphic Container Widget
 class NeumorphicContainer extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -72,7 +71,7 @@ class NeumorphicContainer extends StatelessWidget {
   }
 }
 
-// Message Input Widget - GÜNCELLENDİ: Klavye için optimize edildi
+// Message Input Widget 
 class MessageInput extends StatelessWidget {
   final TextEditingController messageController;
   final bool isSending;
@@ -105,7 +104,6 @@ class MessageInput extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Resim ekleme butonu
           NeumorphicContainer(
             borderRadius: BorderRadius.circular(30),
             padding: EdgeInsets.zero,
@@ -310,7 +308,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildAppBarActions() {
     return Row(
       children: [
-        // Sesli arama butonu
         NeumorphicContainer(
           borderRadius: BorderRadius.circular(30),
           padding: EdgeInsets.zero,
@@ -328,7 +325,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         SizedBox(width: 8),
-        // Görüntülü arama butonu
         NeumorphicContainer(
           borderRadius: BorderRadius.circular(30),
           padding: EdgeInsets.zero,
@@ -346,7 +342,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         SizedBox(width: 8),
-        // Popup menu
         PopupMenuButton<String>(
           color: Colors.white,
           icon: NeumorphicContainer(
@@ -579,7 +574,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     await FlutterDownloader.initialize(debug: true);
   }
 
-  // GELİŞTİRİLMİŞ: Gelen arama dinleyicisi
   bool _showingIncomingCall = false;
 
   void _setupIncomingCallListener() {
@@ -626,7 +620,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     });
   }
 
-  // GELİŞTİRİLMİŞ: Gelen arama dialogu
+  // Gelen arama dialogu
   void _showIncomingCallDialog(Map<String, dynamic> callData) {
     // Önceki dialog'ları kapat
     if (Navigator.of(context).canPop()) {
@@ -664,7 +658,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Titreşim efekti
             Icon(
               Icons.phone_in_talk,
               color: Colors.white,
@@ -691,7 +684,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Reddet butonu
                 Column(
                   children: [
                     Container(
@@ -722,7 +714,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     ),
                   ],
                 ),
-                // Kabul et butonu
                 Column(
                   children: [
                     Container(
@@ -763,15 +754,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   Future<void> _acceptCall(Map<String, dynamic> callData) async {
     try {
-      // Mevcut callManager'ı temizle
       _callManager.dispose();
 
-      // Yeni CallManager oluştur
       final callManager = CallManager();
 
       await callManager.acceptCall(callData['callId']);
 
-      // Arama durumunu güncelle
       await _firestore.collection('calls').doc(callData['callId']).update({
         'status': 'accepted',
         'answeredAt': Timestamp.now(),
@@ -795,7 +783,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         Colors.red,
       );
 
-      // Hata durumunda callId'yi işlenenlerden çıkar
       _processedCallIds.remove(callData['callId']);
     }
   }
@@ -807,7 +794,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         'rejectedAt': Timestamp.now(),
       });
 
-      // Reddedilen çağrıyı işlenenlerden çıkar
       _processedCallIds.remove(callId);
     } catch (e) {
       print('Arama reddedilirken hata: $e');
@@ -815,7 +801,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     }
   }
 
-  // GELİŞTİRİLMİŞ: Aktif izin isteme fonksiyonu
+  // Aktif izin isteme fonksiyonu
   Future<bool> _requestPermissions({bool forDownload = false}) async {
     try {
       if (Platform.isAndroid) {
@@ -939,7 +925,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     }
   }
 
-  // OPTİMİZE EDİLMİŞ: Resim seçme ve gönderme fonksiyonu
+  // Resim seçme ve gönderme fonksiyonu
   Future<void> _pickAndSendImage() async {
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
@@ -1025,7 +1011,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     return result ?? false;
   }
 
-  // OPTİMİZE EDİLMİŞ: Resmi yükleme ve gönderme fonksiyonu
+  // Resmi yükleme ve gönderme fonksiyonu
   Future<void> _uploadAndSendImage(File imageFile) async {
     setState(() {
       _isUploading = true;
@@ -1645,7 +1631,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  '✅ Resimler otomatik optimize ediliyor\n📱 Mobil veri kullanımı kontrol altında\n🔄 Eski resimler temizleniyor',
+                  'Resimler otomatik optimize ediliyor\n Mobil veri kullanımı kontrol altında\n Eski resimler temizleniyor',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -1722,7 +1708,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFf0f0f0),
-      // GÜNCELLENDİ: Klavye için resizeToAvoidBottomInset true yapıldı
       resizeToAvoidBottomInset: true,
       appBar: ChatAppBar(
         otherUserData: widget.otherUserData,
@@ -1732,7 +1717,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         onUserInfo: _showUserInfo,
         onStorageInfo: _showStorageInfo,
       ),
-      // GÜNCELLENDİ: Klavye davranışı için SingleChildScrollView eklendi
       body: SafeArea(
         child: Column(
           children: [
@@ -1811,7 +1795,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 },
               ),
             ),
-            // MessageInput artık klavye ile birlikte yukarı kayacak
             MessageInput(
               messageController: _messageController,
               isSending: _isSending,
@@ -1983,7 +1966,6 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  // Tam ekran resim görüntüleme
   void _showFullScreenImage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -2021,7 +2003,6 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  // OPTİMİZE EDİLMİŞ: Resim indirme fonksiyonu
   Future<void> _downloadImage(
       BuildContext context, String imageUrl, String fileName) async {
     try {
@@ -2090,7 +2071,7 @@ class MessageBubble extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('✅ Resim başarıyla indirildi'),
+                        Text('Resim başarıyla indirildi'),
                         SizedBox(height: 4),
                         Text(
                           'Yol: ${directory?.path}/$fileName',
@@ -2109,7 +2090,7 @@ class MessageBubble extends StatelessWidget {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('❌ İndirme başarısız'),
+                    content: Text('İndirme başarısız'),
                     backgroundColor: Colors.red,
                     duration: Duration(seconds: 3),
                   ),
@@ -2125,7 +2106,7 @@ class MessageBubble extends StatelessWidget {
       print('Resim indirilirken hata: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('❌ İndirme hatası: ${e.toString()}'),
+          content: Text('İndirme hatası: ${e.toString()}'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
