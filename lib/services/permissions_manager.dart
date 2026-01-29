@@ -1,17 +1,13 @@
-// permissions_manager.dart
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionsManager {
-  // Kamera ve mikrofon izinlerini kontrol et ve iste
   static Future<bool> requestCameraAndMicrophonePermissions() async {
     try {
-      // Kamera ve mikrofon izinlerini aynı anda iste
       Map<Permission, PermissionStatus> statuses = await [
         Permission.camera,
         Permission.microphone,
       ].request();
 
-      // Her iki iznin de verilip verilmediğini kontrol et
       bool cameraGranted = statuses[Permission.camera]?.isGranted ?? false;
       bool microphoneGranted =
           statuses[Permission.microphone]?.isGranted ?? false;
@@ -26,7 +22,6 @@ class PermissionsManager {
     }
   }
 
-  // Sadece mikrofon iznini kontrol et (sesli arama için)
   static Future<bool> requestMicrophonePermission() async {
     try {
       PermissionStatus status = await Permission.microphone.request();
@@ -37,7 +32,6 @@ class PermissionsManager {
     }
   }
 
-  // İzinlerin durumunu kontrol et
   static Future<Map<String, bool>> checkPermissions() async {
     bool cameraGranted = await Permission.camera.isGranted;
     bool microphoneGranted = await Permission.microphone.isGranted;
