@@ -1,4 +1,3 @@
-// call_manager.dart - DÜZELTİLMİŞ VERSİYON
 import 'dart:async';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +14,6 @@ class CallManager {
   String? _currentCallId;
   StreamSubscription<DocumentSnapshot>? _callSubscription;
 
-  // Stream controllers
   final StreamController<MediaStream> _remoteStreamController =
       StreamController<MediaStream>.broadcast();
   final StreamController<bool> _callEndedController =
@@ -27,7 +25,6 @@ class CallManager {
   final StreamController<Map<String, dynamic>?> _incomingCallController =
       StreamController<Map<String, dynamic>?>.broadcast();
 
-  // Stream getters
   Stream<MediaStream> get remoteStreamStream => _remoteStreamController.stream;
   Stream<bool> get callEndedStream => _callEndedController.stream;
   Stream<String> get callErrorStream => _callErrorController.stream;
@@ -38,42 +35,27 @@ class CallManager {
   MediaStream? get localStream => _localStream;
   MediaStream? get remoteStream => _remoteStream;
 
-  // EKSİK METOD: Aramayı reddet
   Future<void> rejectCall(String callId) async {
     try {
-      print('Arama reddediliyor: $callId');
-
-      // Arama durumunu güncelle ve hemen sil
       await _firestore.collection('calls').doc(callId).update({
         'status': 'rejected',
         'endedAt': FieldValue.serverTimestamp(),
       });
 
-      // Kısa bir süre sonra veriyi tamamen temizle
       await _cleanUpCallData(callId);
-
-      print('Arama başarıyla reddedildi: $callId');
     } catch (e) {
-      print('Arama reddetme hatası: $e');
-      // Hata olsa bile temizlik yap
       await _cleanUpCallData(callId);
       rethrow;
     }
   }
 
-  // Arama verilerini temizle
   Future<void> _cleanUpCallData(String callId) async {
     try {
-      // 2 saniye bekleyip veriyi sil (UI güncellemeleri için zaman tanı)
       await Future.delayed(Duration(seconds: 2));
       await _firestore.collection('calls').doc(callId).delete();
-      print('Arama verisi temizlendi: $callId');
-    } catch (e) {
-      print('Arama verisi temizleme hatası: $e');
-    }
+    } catch (e) {}
   }
 
-  // İzin yönetimi
   Future<bool> _requestPermissions(bool isVideoCall) async {
     try {
       if (isVideoCall) {
@@ -93,11 +75,8 @@ class CallManager {
     }
   }
 
-  // Arama başlat - OPTİMİZE EDİLMİŞ
   Future<void> startCall(String receiverId, bool isVideoCall) async {
     try {
-      print('Arama başlatılıyor: $receiverId, video: $isVideoCall');
-
       bool hasPermissions = await _requestPermissions(isVideoCall);
       if (!hasPermissions) {
         throw Exception('Gerekli izinler alınamadı');
@@ -110,7 +89,6 @@ class CallManager {
       await _getUserMedia(isVideoCall);
       await _createPeerConnection();
 
-      // MİNİMAL arama verilerini kaydet
       await _firestore.collection('calls').doc(_currentCallId).set({
         'callId': _currentCallId,
         'callerId': _currentUser!.uid,
@@ -121,7 +99,6 @@ class CallManager {
         'callerName': _currentUser!.displayName ?? _currentUser!.email,
       });
 
-      // Offer oluştur ve kaydet
       final offer = await _peerConnection!.createOffer();
       await _peerConnection!.setLocalDescription(offer);
 
@@ -133,11 +110,7 @@ class CallManager {
       });
 
       _listenForCallUpdates(_currentCallId!);
-
-      print('Arama başarıyla başlatıldı: $_currentCallId');
     } catch (e) {
-      print('Arama başlatma hatası: $e');
-      // Hata durumunda veriyi temizle
       if (_currentCallId != null) {
         await _cleanUpCallData(_currentCallId!);
       }
@@ -146,7 +119,6 @@ class CallManager {
     }
   }
 
-  // Gelen aramaları dinle
   void listenForIncomingCalls() {
     if (_currentUser == null) return;
 
@@ -159,7 +131,6 @@ class CallManager {
       if (snapshot.docs.isNotEmpty) {
         for (final doc in snapshot.docs) {
           final data = doc.data() as Map<String, dynamic>;
-          // Sadece aktif aramaları göster
           if (data['status'] == 'calling' &&
               data['receiverId'] == _currentUser!.uid &&
               !_isCallExpired(data)) {
@@ -169,9 +140,7 @@ class CallManager {
           }
         }
       }
-    }, onError: (error) {
-      print('Gelen arama dinleme hatası: $error');
-    });
+    }, onError: (error) {});
   }
 
   bool _isCallExpired(Map<String, dynamic> callData) {
@@ -182,7 +151,6 @@ class CallManager {
     final now = DateTime.now();
     final difference = now.difference(callTime).inSeconds;
 
-    // 60 saniyeden eski aramaları geçersiz say ve temizle
     if (difference > 60) {
       _cleanUpCallData(callData['callId']);
       return true;
@@ -190,11 +158,8 @@ class CallManager {
     return false;
   }
 
-  // DÜZELTİLMİŞ: Aramayı kabul et - answer değişkeni hatası giderildi
   Future<void> acceptCall(String callId) async {
     try {
-      print('Arama kabul ediliyor: $callId');
-
       final callDoc = await _firestore.collection('calls').doc(callId).get();
       final callData = callDoc.data();
 
@@ -217,7 +182,6 @@ class CallManager {
       await _getUserMedia(isVideoCall);
       await _createPeerConnection();
 
-      // Arama durumunu güncelle
       await _firestore.collection('calls').doc(callId).update({
         'status': 'answered',
         'answeredAt': FieldValue.serverTimestamp(),
@@ -229,11 +193,9 @@ class CallManager {
             RTCSessionDescription(offer['sdp'], offer['type']));
       }
 
-      // DÜZELTME: Answer'ı önce oluştur, sonra kullan
       final answer = await _peerConnection!.createAnswer();
       await _peerConnection!.setLocalDescription(answer);
 
-      // Answer'ı Firestore'a kaydet
       await _firestore.collection('calls').doc(callId).update({
         'answer': {
           'sdp': answer.sdp,
@@ -242,11 +204,7 @@ class CallManager {
       });
 
       _listenForCallUpdates(callId);
-
-      print('Arama başarıyla kabul edildi: $callId');
     } catch (e) {
-      print('Arama kabul hatası: $e');
-      // Hata durumunda veriyi temizle
       await _cleanUpCallData(callId);
       await _cleanUp();
       rethrow;
@@ -261,7 +219,6 @@ class CallManager {
         .snapshots()
         .listen((snapshot) async {
       if (!snapshot.exists) {
-        print('Arama dokümanı silindi');
         await endCall();
         return;
       }
@@ -269,7 +226,6 @@ class CallManager {
       final data = snapshot.data()!;
 
       try {
-        // Answer'ı kontrol et
         if (data['answer'] != null && _peerConnection != null) {
           final answer = data['answer'];
           final currentRemoteDescription =
@@ -280,7 +236,6 @@ class CallManager {
           }
         }
 
-        // ICE candidate'ları kontrol et
         if (data['iceCandidates'] != null && _peerConnection != null) {
           final candidates = data['iceCandidates'] as List;
           for (var candidate in candidates) {
@@ -290,26 +245,19 @@ class CallManager {
                 candidate['sdpMid'] ?? '',
                 candidate['sdpMLineIndex'] ?? 0,
               ));
-            } catch (e) {
-              // Candidate zaten eklenmiş olabilir
-            }
+            } catch (e) {}
           }
         }
 
-        // Arama sonlandırıldı mı kontrol et
         if (data['status'] == 'ended' ||
             data['status'] == 'rejected' ||
             data['status'] == 'missed') {
-          print('Arama sonlandırıldı: ${data['status']}');
           await endCall();
         }
-      } catch (e) {
-        print('Call update işleme hatası: $e');
-      }
+      } catch (e) {}
     });
   }
 
-  // Medya akışı
   Future<void> _getUserMedia(bool isVideoCall) async {
     try {
       final mediaConstraints = <String, dynamic>{
@@ -335,7 +283,6 @@ class CallManager {
     }
   }
 
-  // Peer connection
   Future<void> _createPeerConnection() async {
     try {
       final configuration = <String, dynamic>{
@@ -391,33 +338,25 @@ class CallManager {
     }
   }
 
-  // Arama sonlandır - OPTİMİZE EDİLMİŞ
   Future<void> endCall() async {
     try {
-      print('Arama sonlandırılıyor...');
-
-      // Önce durumu güncelle, sonra temizle
       if (_currentCallId != null) {
         await _firestore.collection('calls').doc(_currentCallId).update({
           'status': 'ended',
           'endedAt': FieldValue.serverTimestamp(),
         });
 
-        // Veriyi temizle
         await _cleanUpCallData(_currentCallId!);
       }
 
       await _cleanUp();
       _callEndedController.add(true);
-      print('Arama başarıyla sonlandırıldı');
     } catch (e) {
-      print('Arama sonlandırma hatası: $e');
       await _cleanUp();
       _callEndedController.add(true);
     }
   }
 
-  // Arama kaçırıldı olarak işaretle
   Future<void> markAsMissedCall(String callId) async {
     try {
       await _firestore.collection('calls').doc(callId).update({
@@ -427,16 +366,12 @@ class CallManager {
 
       await _cleanUpCallData(callId);
       await _cleanUp();
-
-      print('Arama kaçırıldı olarak işaretlendi: $callId');
     } catch (e) {
-      print('Arama kaçırıldı işaretleme hatası: $e');
       await _cleanUpCallData(callId);
       await _cleanUp();
     }
   }
 
-  // Diğer metodlar
   void toggleMute(bool mute) {
     if (_localStream != null) {
       final audioTracks = _localStream!.getAudioTracks();
@@ -461,9 +396,7 @@ class CallManager {
       if (videoTracks.isNotEmpty) {
         try {
           Helper.switchCamera(videoTracks.first);
-        } catch (e) {
-          print('Kamera değiştirme hatası: $e');
-        }
+        } catch (e) {}
       }
     }
   }
@@ -489,9 +422,7 @@ class CallManager {
       }
 
       _currentCallId = null;
-    } catch (e) {
-      print('Temizlik hatası: $e');
-    }
+    } catch (e) {}
   }
 
   void dispose() {
