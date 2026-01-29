@@ -1,4 +1,3 @@
-// call_screen.dart - RENDERER BAŞLATMA SORUNU ÇÖZÜLDÜ
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -47,7 +46,6 @@ class _CallScreenState extends State<CallScreen> {
     _initializeRenderers();
   }
 
-  // RENDERER BAŞLATMA İŞLEMİ İYİLEŞTİRİLDİ
   Future<void> _initializeRenderers() async {
     try {
       print('Rendererlar başlatılıyor...');
@@ -79,7 +77,6 @@ class _CallScreenState extends State<CallScreen> {
     });
   }
 
-  // GÜVENLİ STREAM ATAMA METODU - YENİ
   void _safeSetLocalStream() {
     if (!_areRenderersInitialized) {
       print('Rendererlar henüz hazır değil, local stream atama erteleniyor');
@@ -96,7 +93,6 @@ class _CallScreenState extends State<CallScreen> {
     }
   }
 
-  // GÜVENLİ UZAK STREAM ATAMA METODU - YENİ
   void _safeSetRemoteStream(MediaStream remoteStream) {
     if (!_areRenderersInitialized) {
       print('Rendererlar henüz hazır değil, remote stream atama erteleniyor');
@@ -156,7 +152,7 @@ class _CallScreenState extends State<CallScreen> {
       }
     });
 
-    // Eğer gelen arama ise, renderer'ları hemen kur - İYİLEŞTİRİLDİ
+    // Eğer gelen arama ise, renderer'ları hemen kur 
     if (widget.isIncoming && _areRenderersInitialized) {
       _setupLocalStream();
       if (widget.callManager.remoteStream != null) {
@@ -192,7 +188,6 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 
-  // GÜVENLİ GERİ DÖNÜŞ METODU
   void _safeNavigateBack() {
     if (_isEndingCall) return;
 
@@ -201,7 +196,6 @@ class _CallScreenState extends State<CallScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // Chat ekranına dön
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     });
@@ -214,7 +208,6 @@ class _CallScreenState extends State<CallScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Uzak video (görüntülü aramada) - İYİLEŞTİRİLDİ
             if (widget.isVideoCall && _isConnected && _areRenderersInitialized)
               RTCVideoView(_remoteRenderer)
             else
@@ -223,7 +216,7 @@ class _CallScreenState extends State<CallScreen> {
             // Üst bilgi
             _buildHeader(),
 
-            // Yerel video (görüntülü aramada) - İYİLEŞTİRİLDİ
+            // Yerel video (görüntülü aramada) 
             if (widget.isVideoCall && _areRenderersInitialized)
               Positioned(
                 top: 80,
@@ -242,7 +235,7 @@ class _CallScreenState extends State<CallScreen> {
                 ),
               ),
 
-            // Kontrol butonları
+          
             Positioned(
               bottom: 40,
               left: 0,
@@ -269,7 +262,6 @@ class _CallScreenState extends State<CallScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Profil resmi/avatar
           Container(
             width: 120,
             height: 120,
@@ -342,7 +334,7 @@ class _CallScreenState extends State<CallScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Mikrofon
+          
           _buildControlButton(
             icon: _isMuted ? Icons.mic_off : Icons.mic,
             backgroundColor:
@@ -350,7 +342,6 @@ class _CallScreenState extends State<CallScreen> {
             onPressed: _toggleMute,
           ),
 
-          // Sonlandır
           _buildControlButton(
             icon: Icons.call_end,
             backgroundColor: Colors.red,
@@ -367,7 +358,6 @@ class _CallScreenState extends State<CallScreen> {
               onPressed: _toggleCamera,
             ),
 
-          // Hoparlör
           _buildControlButton(
             icon: Icons.volume_up,
             backgroundColor: Colors.grey.withOpacity(0.7),
@@ -408,11 +398,6 @@ class _CallScreenState extends State<CallScreen> {
     widget.callManager.toggleCamera(_isCameraOn);
   }
 
-  void _toggleSpeaker() {
-    // Hoparlör kontrolü buraya eklenecek
-    // widget.callManager.toggleSpeaker();
-  }
-
   void _endCall() {
     if (_isEndingCall) return;
 
@@ -437,7 +422,6 @@ class _CallScreenState extends State<CallScreen> {
     _callErrorSubscription?.cancel();
     _callConnectedSubscription?.cancel();
 
-    // RENDERER DISPOSE İYİLEŞTİRİLDİ
     try {
       _localRenderer.dispose();
       _remoteRenderer.dispose();
